@@ -10,11 +10,18 @@ const Form = props => {
     return (
         <div>
             <form /* onSubmit={submitForm} */>
+                <label htmlFor='sizes'>Choose Your Size: </label>
                 <select id='sizes' name='sizes' data-cy='sizes' /* onChange={inputChange} */>
                     <option>Small</option>
                     <option>Medium</option>
                     <option>Large</option>
                 </select>
+                <br />
+                <label htmlFor='sauces'></label>
+                <input id='sauces' type='radio' name='sauces' data-cy='sauces' />Classic Marinara<br />
+                <input id='sauces' type='radio' name='sauces' data-cy='sauces' />Hearty Bolognese<br />
+                <input id='sauces' type='radio' name='sauces' data-cy='sauces' />BBQ Sauce<br />
+                <input id='sauces' type='radio' name='sauces' data-cy='sauces' />Garlic Parmesan
             </form>
 
         </div>
