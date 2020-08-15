@@ -40,6 +40,10 @@ const Form = props => {
                 <input id='toppings' type='checkbox' name='threecheese' data-cy='toppings' />Three Cheese Blend<br />
                 <input id='toppings' type='checkbox' name='pineapple' data-cy='toppings' />Pineapple<br />
                 <input id='toppings' type='checkbox' name='xtracheese' data-cy='toppings' />XTra Cheese
+                <br /><br />
+                <label htmlFor='special' />Special Instructions: 
+                <br /><br />
+                <textarea id='special' name='special' placeholder='Anything else we can help with?' data-cy='special' />
             </form>
 
         </div>
