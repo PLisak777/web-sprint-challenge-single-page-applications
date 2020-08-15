@@ -7,25 +7,32 @@ const Header = (props) => {
 const NavBar = styled.nav`
     width: 100%;
     display: flex;
-    justify-content: center;
-    
+    justify-content: space-between;   
+    align-items: center;
+    font-size: 1.5rem;
 `
 
 const Container = styled.div`
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
+    background: lightgrey;
 `
 
+const List = styled.li`
+    display: flex;
+    padding: 0 10px 0 10px;
+    justify-content: space-evenly;
+    text-decoration: none;
+`
 
     return (
     <Container className='container'>
         <div className='header'>
-            Lambda Eats
             <NavBar className='nav-container'>
+                Lambda Eats
                 <ul>
-                    <Link to='/'>Home</Link>
-                    <li>Contact</li>
+                    <List>
+                        <Link to='/'>Home</Link>
+                        <List>Contact</List>
+                    </List>
                 </ul>
             </NavBar>
         </div>

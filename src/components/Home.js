@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, Router, Switch, useHistory } from 'react-router-dom';
+import styled from 'styled-components';
 
 const Home = (props) => {
     const history = useHistory();
