@@ -24,8 +24,8 @@ const [order, setOrder] = useState([{
     toppings: [{}]
 }])
 
-const [size, setSize] = useState([{}]);
-const [sauce, setSauce] = useState([{}]);
+const [size, setSize] = useState();
+const [sauce, setSauce] = useState();
 const [toppings, setToppings] = useState([{}]);
 
 // Create function to set size
