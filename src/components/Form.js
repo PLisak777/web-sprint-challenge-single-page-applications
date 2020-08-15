@@ -13,6 +13,7 @@ const formSchema = yup.object().shape({
     .required('An option is required'),
     toppings: yup
     .string()
+    .max(10, "Choose up to 10 toppings")
 })
 
 const Form = props => {
@@ -23,8 +24,8 @@ const [order, setOrder] = useState([{
     toppings: [{}]
 }])
 
-const [size, setSize] = useState();
-const [sauce, setSauce] = useState();
+const [size, setSize] = useState([{}]);
+const [sauce, setSauce] = useState([{}]);
 const [toppings, setToppings] = useState([{}]);
 
 // Create function to set size
@@ -66,12 +67,26 @@ const handleCheckbox = e => {
 //     }
 // }) 
 
+const submitForm = (e) => {
+    e.preventDefault();
+    console.log('submitted')
+    axios.post('http://reqres.in', order)
+    .then ((res) => {
+        console.log('Order Successful', res.data)
+        setOrder({
+            size: "",
+            sauce: "",
+            toppings: ""
+        })
+    })
+    .catch('Error')
+}
 
 
 
     return (
         <div>
-            <form /* onSubmit={submitForm} */>
+            <form onSubmit={submitForm}>
                 <label htmlFor='sizes'>Choose Your Size: </label><br /><br />
                 <select id='sizes' name='sizes' data-cy='sizes' /* onChange={inputChange} */>
                     <option>Small</option>
@@ -81,10 +96,10 @@ const handleCheckbox = e => {
                 <br />
                 <br />
                 <label htmlFor='sauces'>Choose Your Sauce: </label><br /><br />
-                <input id='sauces' type='radio' name='sauces' data-cy='sauces' />Classic Marinara<br />
-                <input id='sauces' type='radio' name='sauces' data-cy='sauces' />Hearty Bolognese<br />
-                <input id='sauces' type='radio' name='sauces' data-cy='sauces' />BBQ Sauce<br />
-                <input id='sauces' type='radio' name='sauces' data-cy='sauces' />Garlic Parmesan
+                <input id='sauces' type='radio' name='marinara' data-cy='sauces' />Classic Marinara<br />
+                <input id='sauces' type='radio' name='bolognese' data-cy='sauces' />Hearty Bolognese<br />
+                <input id='sauces' type='radio' name='bbq' data-cy='sauces' />BBQ Sauce<br />
+                <input id='sauces' type='radio' name='garlic' data-cy='sauces' />Garlic Parmesan
                 <br />
                 <br />
                 <label htmlFor='toppings' />Choose Your Toppings (up to 10): <br /><br />
@@ -108,7 +123,7 @@ const handleCheckbox = e => {
                 <textarea id='special' name='special' placeholder='Anything else we can help with?' data-cy='special' />
                 <br />
                 <br />
-                <button /* onSubmit={submitForm} */ id='submit' type='submit' name='submit' data-cy='submit'>Add to Order</button>
+                <button onSubmit={submitForm} id='submit' type='submit' name='submit' data-cy='submit'>Add to Order</button>
             </form>
 
         </div>
