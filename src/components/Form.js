@@ -2,8 +2,51 @@ import React, { useState, useEffect } from 'react';
 import * as yup from 'yup';
 import axios from 'axios';
 
+// Create schema for validation
+const formSchema = yup.object().shape({
+    sizes: yup
+    .string()
+    .oneOf(['Small', 'Medium', 'Large'], 'Please choose a size')
+    .required('Size is a required field'),
+    sauces: yup
+    .string()
+    .required('An option is required')
+
+})
+
 const Form = props => {
 // Setup state for Form elements (sauce, toppings, instructions)
+const [size, setSize] = useState();
+const [sauce, setSauce] = useState();
+const [toppings, setToppings] = useState([{}]);
+
+// Create function to handle toppings checkboxes
+const handleCheckbox = ((e) => {
+    const isChecked = document.querySelectorAll('input[type="checkbox"]: checked');
+    console.log(isChecked)
+    if (isChecked < 10) {
+        if (e.target.checked) {
+            setToppings([e.target.value])
+        }
+    } else {
+        const arr = toppings;
+        arr.filter(item => item !== e.target.value);
+        setToppings({
+            toppings: arr
+        })
+    }
+    const checks = document.querySelectorAll('input[type="checkbox"]');
+    const max = 10;
+    for (var i=0; i < checks.length; i++)
+    checks[i].onClick = selectiveCheck;
+    const selectiveCheck = (event) => {
+        console.log(event.target);
+        let checkedChecks = document.querySelectorAll('input[type="checkbox"]: checked');
+        if (checkedChecks.length >= max + 1)
+        return false;
+    }
+}) 
+
 
 
 
@@ -11,7 +54,7 @@ const Form = props => {
         <div>
             <form /* onSubmit={submitForm} */>
                 <label htmlFor='sizes'>Choose Your Size: </label><br /><br />
-                <select id='sizes' name='sizes' data-cy='sizes' /* onChange={inputChange} */><br />
+                <select id='sizes' name='sizes' data-cy='sizes' /* onChange={inputChange} */>
                     <option>Small</option>
                     <option>Medium</option>
                     <option>Large</option>
@@ -26,20 +69,20 @@ const Form = props => {
                 <br />
                 <br />
                 <label htmlFor='toppings' />Choose Your Toppings (up to 10): <br /><br />
-                <input id='toppings' type='checkbox' name='pepperoni' data-cy='toppings' />Pepperoni<br />
-                <input id='toppings' type='checkbox' name='sausage' data-cy='toppings' />Sausage<br />
-                <input id='toppings' type='checkbox' name='bacon' data-cy='toppings' />Canadian Bacon<br />
-                <input id='toppings' type='checkbox' name='spicysausage' data-cy='toppings' />Spicy Italian Sausage<br />
-                <input id='toppings' type='checkbox' name='chicken' data-cy='toppings' />Grilled Chicken<br />
-                <input id='toppings' type='checkbox' name='onion' data-cy='toppings' />Onions<br />
-                <input id='toppings' type='checkbox' name='greenpepper' data-cy='toppings' />Green Pepper<br />
-                <input id='toppings' type='checkbox' name='dicedtoms' data-cy='toppings' />Diced Tomatoes<br />
-                <input id='toppings' type='checkbox' name='olives' data-cy='toppings' />Black Olives<br />
-                <input id='toppings' type='checkbox' name='roastgarlic' data-cy='toppings' />Roasted Garlic<br />
-                <input id='toppings' type='checkbox' name='artichoke' data-cy='toppings' />Artichoke Hearts<br />
-                <input id='toppings' type='checkbox' name='threecheese' data-cy='toppings' />Three Cheese Blend<br />
-                <input id='toppings' type='checkbox' name='pineapple' data-cy='toppings' />Pineapple<br />
-                <input id='toppings' type='checkbox' name='xtracheese' data-cy='toppings' />XTra Cheese
+                <input id='toppings' type='checkbox' name='pepperoni' value='pepperoni' data-cy='toppings' />Pepperoni<br />
+                <input id='toppings' type='checkbox' name='sausage' value='sausage' data-cy='toppings' />Sausage<br />
+                <input id='toppings' type='checkbox' name='bacon' value='bacon' data-cy='toppings' />Canadian Bacon<br />
+                <input id='toppings' type='checkbox' name='spicysausage' value='spicysausage' data-cy='toppings' />Spicy Italian Sausage<br />
+                <input id='toppings' type='checkbox' name='chicken' value='chicken' data-cy='toppings' />Grilled Chicken<br />
+                <input id='toppings' type='checkbox' name='onion' value='onion' data-cy='toppings' />Onions<br />
+                <input id='toppings' type='checkbox' name='greenpepper' value='greenpepper' data-cy='toppings' />Green Pepper<br />
+                <input id='toppings' type='checkbox' name='dicedtoms' value='dicedtoms' data-cy='toppings' />Diced Tomatoes<br />
+                <input id='toppings' type='checkbox' name='olives' value='olives' data-cy='toppings' />Black Olives<br />
+                <input id='toppings' type='checkbox' name='roastgarlic' value='roastgarlic' data-cy='toppings' />Roasted Garlic<br />
+                <input id='toppings' type='checkbox' name='artichoke' value='artichoke' data-cy='toppings' />Artichoke Hearts<br />
+                <input id='toppings' type='checkbox' name='threecheese' value='threecheese' data-cy='toppings' />Three Cheese Blend<br />
+                <input id='toppings' type='checkbox' name='pineapple' value='pineapple' data-cy='toppings' />Pineapple<br />
+                <input id='toppings' type='checkbox' name='xtracheese' value='xtracheese' data-cy='toppings' />XTra Cheese
                 <br /><br />
                 <label htmlFor='special' />Special Instructions: 
                 <br /><br />
