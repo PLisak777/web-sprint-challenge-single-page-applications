@@ -44,6 +44,9 @@ const Form = props => {
                 <label htmlFor='special' />Special Instructions: 
                 <br /><br />
                 <textarea id='special' name='special' placeholder='Anything else we can help with?' data-cy='special' />
+                <br />
+                <br />
+                <button /* onSubmit={submitForm} */ id='submit' type='submit' name='submit' data-cy='submit'>Add to Order</button>
             </form>
 
         </div>
