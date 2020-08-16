@@ -7,14 +7,14 @@ import styled from 'styled-components';
 const formSchema = yup.object().shape({
     name: yup
     .string()
-    .min(2, 'Name must contain at least 2 characters')
-    .required('Name is a required field'),
+    .min(2, 'Name must contain at least 2 characters') // MVP requires name has at least 2 chars
+    .required('Name is a required field'), // and is required
     sizes: yup
     .string()
     .oneOf(['Small', 'Medium', 'Large'], 'Please choose a size')
     .required('Size is a required field'),
     toppings: yup
-    .string()
+    .string() // I think toppings needs to be iterated into an array like size
     .max(10, "Choose up to 10 toppings"),
     special: yup
     .string()
@@ -31,17 +31,20 @@ const [order, setOrder] = useState({
     special: ''
 })
 
+// Setup state for error handling
 const [errors, setErrors] = useState({
     name: "",
     size: "",
     sauce: "",
     toppings: "",
     special: ""
-})
+});
 
+// Setup state for post request
 const [post, setPost] = useState();
 
-const [toppings, setToppings] = useState([]);
+// Setup state to create toppings object and mutate to end of array
+const [toppings, setToppings] = useState({});
 
 // Handle checkboxes and use them to add to array
 const handleCheckbox = e => {
@@ -51,12 +54,13 @@ const handleCheckbox = e => {
         setToppings(newTopping)
 }
 
+// Validation
 const validateChange = ((e) => {
     yup
     .reach(formSchema, e.target.name)
     .validate(e.target.value)
     .then((valid) => {})
-    .catch((err) => {})
+    .catch(err => {}) // err is coming back undefined?
     console.log(err)
     setErrors({
         ...errors,
@@ -64,11 +68,22 @@ const validateChange = ((e) => {
     })
 })
 
+// useEffect(() => {
+//     formSchema
+//     .isValid(order)
+//     .then((isValid) => {
+//         console.log(err)
+//     }), [order]
+// })
+
+// Form submission handler onSubmit
 const submitForm = (e) => {
     e.preventDefault();
     console.log('submitted')
     axios.post('http://reqres.in/', order)
     .then ((res) => {
+        console.log('success', res.data)
+        setPost(res.data)
         setOrder({
             name: "",
             size: "",
@@ -76,22 +91,21 @@ const submitForm = (e) => {
             toppings: "",
             special: ""
         })
-        console.log(res.data)
-
     })
     .catch('Error', errors)
 }
 
+// onChange handler
 const inputChange = (e) => {
     e.persist();
     console.log('Change logged');
     const newData = {
         ...order, 
         [e.target.name]:
-        e.target.type === 'checkbox' ? e.target.checked : e.target.value && 
-        e.target.type === 'radio' ? e.target.touched : e.target.value
+        e.target.type === 'checkbox' ? e.target.checked : e.target.value &&
+        e.target.type === 'radio' ? e.target.touched : e.target.value // Added handling for both checkbox and radio buttons
     }
-    validateChange(e)
+    // validateChange(e)
     setOrder(newData)
 }
 
@@ -106,7 +120,7 @@ const inputChange = (e) => {
                 data-cy='name'
                 value={order.name}
                 onChange={inputChange}/>
-                {errors.name.length > 2 ? <p className='error'>{errors.name}</p> : null}
+                {errors.name.length > 0 ? <p className='error'>{errors.name}</p> : null}
                 <br />
                 <br />
                 <label htmlFor='sizes'>Choose Your Size: </label><br />
@@ -132,20 +146,20 @@ const inputChange = (e) => {
                 <br />
                 <br />
                 <label htmlFor='toppings' />Choose Your Toppings (up to 10): <br /><br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='pepperoni' value={order.toppings} onChange={inputChange} data-cy='toppings' />Pepperoni<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='sausage' value={order.toppings} onChange={inputChange} data-cy='toppings' />Sausage<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='bacon' value={order.toppings} onChange={inputChange} data-cy='toppings' />Canadian Bacon<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='spicysausage' value={order.toppings} onChange={inputChange} data-cy='toppings' />Spicy Italian Sausage<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='chicken' value={order.toppings} onChange={inputChange} data-cy='toppings' />Grilled Chicken<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='onion' value={order.toppings} onChange={inputChange} data-cy='toppings' />Onions<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='greenpepper' value={order.toppings} onChange={inputChange} data-cy='toppings' />Green Pepper<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='dicedtoms' value={order.toppings} onChange={inputChange} data-cy='toppings' />Diced Tomatoes<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='olives' value={order.toppings} onChange={inputChange} data-cy='toppings' />Black Olives<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='roastgarlic' value={order.toppings} onChange={inputChange} data-cy='toppings' />Roasted Garlic<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='artichoke' value={order.toppings} onChange={inputChange} data-cy='toppings' />Artichoke Hearts<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='threecheese' value={order.toppings} onChange={inputChange} data-cy='toppings' />Three Cheese Blend<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='pineapple' value={order.toppings} onChange={inputChange} data-cy='toppings' />Pineapple<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='xtracheese' value={order.toppings} onChange={inputChange} data-cy='toppings' />XTra Cheese
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='pepperoni' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Pepperoni<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='sausage' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Sausage<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='bacon' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Canadian Bacon<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='spicysausage' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Spicy Italian Sausage<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='chicken' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Grilled Chicken<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='onion' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Onions<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='greenpepper' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Green Pepper<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='dicedtoms' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Diced Tomatoes<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='olives' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Black Olives<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='roastgarlic' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Roasted Garlic<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='artichoke' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Artichoke Hearts<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='threecheese' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Three Cheese Blend<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='pineapple' checked={order.toppings} onChange={inputChange} data-cy='toppings' />Pineapple<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='xtracheese' checked={order.toppings} onChange={inputChange} data-cy='toppings' />XTra Cheese
                 <br /><br />
                 <label htmlFor='special' />Special Instructions: 
                 <br /><br />
