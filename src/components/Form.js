@@ -1,35 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import * as yup from 'yup';
 import axios from 'axios';
+import styled from 'styled-components';
 
 // Create schema for validation
 const formSchema = yup.object().shape({
+    name: yup
+    .string()
+    .min(2, 'Name must contain at least 2 characters')
+    .required('Name is a required field'),
     sizes: yup
     .string()
     .oneOf(['Small', 'Medium', 'Large'], 'Please choose a size')
     .required('Size is a required field'),
-    sauces: yup
-    .string()
-    .required('An option is required'),
     toppings: yup
     .string()
-    .max(10, "Choose up to 10 toppings")
+    .max(10, "Choose up to 10 toppings"),
+    special: yup
+    .string()
+    .max(255, 'Only 255 characters allowed')
 })
 
-const Form = props => {
+const Form = () => {
 // Setup state for Form elements (sauce, toppings, instructions)
-const [order, setOrder] = useState([{
+const [order, setOrder] = useState({
+    name: '',
     size: '',
     sauce: '',
-    toppings: [{}]
-}])
+    toppings: '',
+    special: ''
+})
 
-const [size, setSize] = useState();
-const [sauce, setSauce] = useState();
-const [toppings, setToppings] = useState([{}]);
+const [errors, setErrors] = useState({
+    name: "",
+    size: "",
+    sauce: "",
+    toppings: "",
+    special: ""
+})
 
-// Create function to set size
+const [post, setPost] = useState();
 
+const [toppings, setToppings] = useState([]);
 
 // Handle checkboxes and use them to add to array
 const handleCheckbox = e => {
@@ -39,63 +51,80 @@ const handleCheckbox = e => {
         setToppings(newTopping)
 }
 
-// Create function to handle toppings checkboxes
-// const handleCheckbox = ((e) => {
-//     const fixins = document.querySelectorAll('#toppings')
-//     const isChecked = fixins.checked;
-//     console.log(isChecked)
-//     if (isChecked < 10) {
-//         if (e.target.checked) {
-//             setToppings([e.target.value])
-//         }
-//     } else {
-//         const arr = toppings;
-//         arr.filter(item => item !== e.target.value);
-//         setToppings({
-//             toppings: arr
-//         })
-//     }
-//     const checks = document.querySelectorAll('input[type="checkbox"]');
-//     const max = 10;
-//     for (var i=0; i < checks.length; i++)
-//     checks[i].onClick = selectiveCheck;
-//     const selectiveCheck = (event) => {
-//         console.log(event.target);
-//         let checkedChecks = document.querySelectorAll('input[type="checkbox"]: checked');
-//         if (checkedChecks.length >= max + 1)
-//         return false;
-//     }
-// }) 
+const validateChange = ((e) => {
+    yup
+    .reach(formSchema, e.target.name)
+    .validate(e.target.value)
+    .then((valid) => {})
+    .catch((err) => {})
+    console.log(err)
+    setErrors({
+        ...errors,
+        [e.target.name]: err.errors[0]
+    })
+})
 
 const submitForm = (e) => {
     e.preventDefault();
     console.log('submitted')
-    axios.post('http://reqres.in', order)
+    axios.post('http://reqres.in/', order)
     .then ((res) => {
-        console.log('Order Successful', res.data)
         setOrder({
+            name: "",
             size: "",
             sauce: "",
-            toppings: ""
+            toppings: "",
+            special: ""
         })
+        console.log(res.data)
+
     })
-    .catch('Error')
+    .catch('Error', errors)
 }
 
-
+const inputChange = (e) => {
+    e.persist();
+    console.log('Change logged');
+    const newData = {
+        ...order, 
+        [e.target.name]:
+        e.target.type === 'checkbox' ? e.target.checked : e.target.value && 
+        e.target.type === 'radio' ? e.target.touched : e.target.value
+    }
+    validateChange(e)
+    setOrder(newData)
+}
 
     return (
         <div>
             <form onSubmit={submitForm}>
-                <label htmlFor='sizes'>Choose Your Size: </label><br /><br />
-                <select id='sizes' name='sizes' data-cy='sizes' /* onChange={inputChange} */>
-                    <option>Small</option>
-                    <option>Medium</option>
-                    <option>Large</option>
+                <label htmlFor='name' />Enter Your Name: <br />
+                <input 
+                id='name' 
+                type='text' 
+                name='name' 
+                data-cy='name'
+                value={order.name}
+                onChange={inputChange}/>
+                {errors.name.length > 2 ? <p className='error'>{errors.name}</p> : null}
+                <br />
+                <br />
+                <label htmlFor='sizes'>Choose Your Size: </label><br />
+                <br />
+                <select 
+                id='sizes' 
+                name='sizes' 
+                data-cy='sizes' 
+                value={order.size}
+                onChange={inputChange}>
+                    <option value='small' data-cy='sizes'>Small</option>
+                    <option value='medium' data-cy='sizes'>Medium</option>
+                    <option value='large' data-cy='sizes'>Large</option>
                 </select>
                 <br />
                 <br />
-                <label htmlFor='sauces'>Choose Your Sauce: </label><br /><br />
+                <label htmlFor='sauces'>Choose Your Sauce: </label><br />
+                <br />
                 <input id='sauces' type='radio' name='marinara' data-cy='sauces' />Classic Marinara<br />
                 <input id='sauces' type='radio' name='bolognese' data-cy='sauces' />Hearty Bolognese<br />
                 <input id='sauces' type='radio' name='bbq' data-cy='sauces' />BBQ Sauce<br />
@@ -103,29 +132,29 @@ const submitForm = (e) => {
                 <br />
                 <br />
                 <label htmlFor='toppings' />Choose Your Toppings (up to 10): <br /><br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='pepperoni' value='pepperoni' data-cy='toppings' />Pepperoni<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='sausage' value='sausage' data-cy='toppings' />Sausage<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='bacon' value='bacon' data-cy='toppings' />Canadian Bacon<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='spicysausage' value='spicysausage' data-cy='toppings' />Spicy Italian Sausage<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='chicken' value='chicken' data-cy='toppings' />Grilled Chicken<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='onion' value='onion' data-cy='toppings' />Onions<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='greenpepper' value='greenpepper' data-cy='toppings' />Green Pepper<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='dicedtoms' value='dicedtoms' data-cy='toppings' />Diced Tomatoes<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='olives' value='olives' data-cy='toppings' />Black Olives<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='roastgarlic' value='roastgarlic' data-cy='toppings' />Roasted Garlic<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='artichoke' value='artichoke' data-cy='toppings' />Artichoke Hearts<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='threecheese' value='threecheese' data-cy='toppings' />Three Cheese Blend<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='pineapple' value='pineapple' data-cy='toppings' />Pineapple<br />
-                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='xtracheese' value='xtracheese' data-cy='toppings' />XTra Cheese
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='pepperoni' value={order.toppings} onChange={inputChange} data-cy='toppings' />Pepperoni<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='sausage' value={order.toppings} onChange={inputChange} data-cy='toppings' />Sausage<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='bacon' value={order.toppings} onChange={inputChange} data-cy='toppings' />Canadian Bacon<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='spicysausage' value={order.toppings} onChange={inputChange} data-cy='toppings' />Spicy Italian Sausage<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='chicken' value={order.toppings} onChange={inputChange} data-cy='toppings' />Grilled Chicken<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='onion' value={order.toppings} onChange={inputChange} data-cy='toppings' />Onions<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='greenpepper' value={order.toppings} onChange={inputChange} data-cy='toppings' />Green Pepper<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='dicedtoms' value={order.toppings} onChange={inputChange} data-cy='toppings' />Diced Tomatoes<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='olives' value={order.toppings} onChange={inputChange} data-cy='toppings' />Black Olives<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='roastgarlic' value={order.toppings} onChange={inputChange} data-cy='toppings' />Roasted Garlic<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='artichoke' value={order.toppings} onChange={inputChange} data-cy='toppings' />Artichoke Hearts<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='threecheese' value={order.toppings} onChange={inputChange} data-cy='toppings' />Three Cheese Blend<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='pineapple' value={order.toppings} onChange={inputChange} data-cy='toppings' />Pineapple<br />
+                <input id='toppings' type='checkbox' onClick={handleCheckbox} name='xtracheese' value={order.toppings} onChange={inputChange} data-cy='toppings' />XTra Cheese
                 <br /><br />
                 <label htmlFor='special' />Special Instructions: 
                 <br /><br />
-                <textarea id='special' name='special' placeholder='Anything else we can help with?' data-cy='special' />
+                <textarea id='special' name='special' placeholder='Anything else we can help with?' data-cy='special' value={order.special} onChange={inputChange} />
                 <br />
                 <br />
-                <button onSubmit={submitForm} id='submit' type='submit' name='submit' data-cy='submit'>Add to Order</button>
+                <button id='submit' type='submit' name='submit' data-cy='submit'>Add to Order</button>
             </form>
-
+    <pre>{JSON.stringify(order, null, 2)}</pre>
         </div>
     )
 }
